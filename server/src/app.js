@@ -1,5 +1,6 @@
 import express, { urlencoded } from "express";
 import cors from "cors";
+import conf from "./config/conf.js";
 
 import productRoutes from "./routes/product.routes.js";
 
@@ -10,12 +11,11 @@ const app = express();
 
 app.use(
     cors({
-        origin: process.env.CORS_ORIGIN,
-        credentials: true,
-    }),
+        origin: conf.corsOrigin,
+    })
 );
 
-app.use(urlencodedded({ extended: true }));
+app.use(urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use("/api/products", productRoutes);
