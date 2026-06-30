@@ -1,28 +1,52 @@
 import ProductRow from "./ProductRow";
 
+import {
+    Table,
+    TableBody,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
+
 const ProductTable = ({ products }) => {
     if (!products.length) {
-        return <h2 className="text-center mt-10">No products found.</h2>;
+        return (
+            <div className="border rounded-lg p-10 text-center">
+                <h2 className="text-lg font-semibold">No products found</h2>
+
+                <p className="text-muted-foreground mt-2">
+                    Try adding a product or adjusting your search.
+                </p>
+            </div>
+        );
     }
 
     return (
-        <table className="w-full border rounded-lg overflow-hidden">
-            <thead className="bg-gray-100">
-                <tr>
-                    <th className="p-3 text-left">Name</th>
-                    <th className="p-3 text-left">Category</th>
-                    <th className="p-3 text-left">Price</th>
-                    <th className="p-3 text-left">Stock</th>
-                    <th className="p-3 text-left">Actions</th>
-                </tr>
-            </thead>
+        <div className="rounded-lg border overflow-hidden">
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>Name</TableHead>
 
-            <tbody>
-                {products.map((product) => (
-                    <ProductRow key={product._id} product={product} />
-                ))}
-            </tbody>
-        </table>
+                        <TableHead>Category</TableHead>
+
+                        <TableHead>Price</TableHead>
+
+                        <TableHead>Stock</TableHead>
+
+                        <TableHead className="w-22.5 text-center">
+                            Actions
+                        </TableHead>
+                    </TableRow>
+                </TableHeader>
+
+                <TableBody>
+                    {products.map((product) => (
+                        <ProductRow key={product._id} product={product} />
+                    ))}
+                </TableBody>
+            </Table>
+        </div>
     );
 };
 

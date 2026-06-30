@@ -1,49 +1,96 @@
 import { useDispatch, useSelector } from "react-redux";
-import { closeProductModal } from "../../features/ui/uiSlice";
+
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
+
+import { closeProductModal } from "@/features/ui/uiSlice";
+
+import {
+    useCreateProductMutation,
+    useUpdateProductMutation,
+} from "@/features/api/productApi";
+
 import ProductForm from "./ProductForm";
-import { useCreateProductMutation } from "../../features/api/productApi";
+import { EMPTY_PRODUCT } from "@/constants/product.constants";
+import { notify } from "@/utils/toast";
 
 const ProductModal = () => {
-    const [createProduct, { isLoading }] = useCreateProductMutation();
+    const dispatch = useDispatch();
 
-    const handleCreateProduct = async (data) => {
+    const { isProductModalOpen, selectedProduct } = useSelector(
+        (state) => state.ui,
+    );
+
+    const [createProduct, createState] = useCreateProductMutation();
+
+    const [updateProduct, updateState] = useUpdateProductMutation();
+
+    const isEditMode = Boolean(selectedProduct);
+
+    const defaultValues = selectedProduct ?? EMPTY_PRODUCT;
+
+    const handleSubmit = async (formData) => {
         try {
-            await createProduct(data).unwrap();
+            if (isEditMode) {
+                await updateProduct({
+                    id: selectedProduct._id,
+                    productData: formData,
+                }).unwrap();
+                notify.success("Product updated successfully.");
+            } else {
+                await createProduct(formData).unwrap();
+                notify.success("Product added successfully.");
+            }
 
             dispatch(closeProductModal());
         } catch (error) {
+            notify.error(error?.data?.message || "something went wrong!");
             console.error(error);
         }
     };
 
-    const dispatch = useDispatch();
-
-    const { isProductModalOpen } = useSelector((state) => state.ui);
-
-    if (!isProductModalOpen) return null;
-
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
-            <div className="bg-white rounded-lg p-6 w-[500px]">
-                <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-semibold">Add Product</h2>
+        <Dialog
+            open={isProductModalOpen}
+            onOpenChange={(open) => {
+                if (!open) {
+                    dispatch(closeProductModal());
+                }
+            }}
+        >
+            <DialogContent
+                className="sm:max-w-lg"
+                onInteractOutside={(e) => {
+                    e.preventDefault();
+                }}
+            >
+                <DialogHeader>
+                    <DialogTitle>
+                        {isEditMode ? "Edit Product" : "Add Product"}
+                    </DialogTitle>
 
-                    <button onClick={() => dispatch(closeProductModal())}>
-                        ✕
-                    </button>
-                </div>
+                    <DialogDescription>
+                        {isEditMode
+                            ? "Update the product details."
+                            : "Fill in the details below to add a new product."}
+                    </DialogDescription>
+                </DialogHeader>
 
                 <ProductForm
-                    onSubmit={handleCreateProduct}
-                    defaultValues={{
-                        name: "",
-                        category: "",
-                        price: "",
-                        stock: "",
-                    }}
+                    defaultValues={defaultValues}
+                    onSubmit={handleSubmit}
+                    isSubmitting={
+                        createState.isLoading || updateState.isLoading
+                    }
+                    submitLabel={isEditMode ? "Update Product" : "Add Product"}
                 />
-            </div>
-        </div>
+            </DialogContent>
+        </Dialog>
     );
 };
 

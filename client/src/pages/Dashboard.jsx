@@ -1,11 +1,13 @@
 import { useState } from "react";
 
-import Header from "../components/layout/Header";
-import SearchBar from "../components/product/SearchBar";
-import ProductTable from "../components/product/ProductTable";
+import DashboardLayout from "@/components/layout/DashboardLayout";
+import SearchBar from "@/components/product/SearchBar";
+import ProductTable from "@/components/product/ProductTable";
+import ProductModal from "@/components/product/ProductModal";
+import DeleteDialog from "@/components/product/DeleteDialog";
+import Loader from "@/components/common/Loader";
 
-import { useGetProductsQuery } from "../features/api/productApi";
-import ProductModal from "../components/product/ProductModal";
+import { useGetProductsQuery } from "@/features/api/productApi";
 
 const Dashboard = () => {
     const [search, setSearch] = useState("");
@@ -13,25 +15,32 @@ const Dashboard = () => {
     const { data, isLoading, error } = useGetProductsQuery(search);
 
     if (isLoading) {
-        return <h2>Loading...</h2>;
+        return <Loader text="Loading Dashboard..." fullScreen />;
     }
 
     if (error) {
-        return <h2>Something went wrong.</h2>;
+        return (
+            <DashboardLayout>
+                <div className="flex h-full items-center justify-center">
+                    <h2 className="text-destructive font-medium">
+                        Something went wrong.
+                    </h2>
+                </div>
+            </DashboardLayout>
+        );
     }
 
     return (
-        <main className="container mx-auto px-6 py-8">
-            <Header />
-
-            <div className="my-6">
+        <DashboardLayout>
+            <div className="mb-6">
                 <SearchBar search={search} setSearch={setSearch} />
             </div>
 
             <ProductTable products={data?.data || []} />
 
             <ProductModal />
-        </main>
+            <DeleteDialog />
+        </DashboardLayout>
     );
 };
 

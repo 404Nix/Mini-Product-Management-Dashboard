@@ -6,7 +6,7 @@ import app from "./app.js";
  * @desc Development Only
  */
 import dns from "dns";
-console.log(conf.nodeEnv);
+// console.log(conf.nodeEnv);
 
 if (conf.nodeEnv === "development") {
     dns.setServers(["8.8.8.8"]);
