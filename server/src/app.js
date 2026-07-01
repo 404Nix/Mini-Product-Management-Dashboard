@@ -54,6 +54,13 @@ app.use(
 
 app.use("/api/products", productRoutes);
 
+app.use("/api/health", (_req, res) => {
+    res.status(200).json({
+        success: true,
+        message: "Server is working!"
+    })
+})
+
 app.use(notFound);
 
 app.use(errorHandler);
